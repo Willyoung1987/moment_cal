@@ -253,8 +253,8 @@ def build_pdf_fpdf(params, results):
     pdf = FPDF(format="A4")
     pdf.add_page()
 
-    # 注册中文字体（确保你放置了 fonts/msyh.ttf）
-    pdf.add_font("CN", "", "fonts/msyh.ttf", uni=True)
+    # 注册中文字体（确保你放置了 fonts/msyh.ttc）
+    pdf.add_font("CN", "", "fonts/msyh.ttc", uni=True)
     pdf.set_font("CN", size=12)
 
     # -------------------------
@@ -264,7 +264,7 @@ def build_pdf_fpdf(params, results):
     pdf.set_font("CN", size=48)
 
     pdf.rotate(30, x=105, y=150)  # 中心旋转
-    pdf.text(40, 150, "威尔迈（嘉兴）")
+    pdf.text(40, 150, "Willmat")
     pdf.rotate(0)
 
     # 恢复正常颜色
