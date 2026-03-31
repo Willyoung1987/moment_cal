@@ -148,7 +148,7 @@ def plot_ring(Do, Di, H):
 ##############################################
 # Streamlit UI
 ##############################################
-st.title("🔩 磁矩计算器（Streamlit 网页版）")
+st.title("🔩 磁矩计算器 网页版")
 st.caption("支持 3D 示意、公差分析、镀层、倒角、PDF 导出 | 单位自动转为 μV·s·cm")
 
 left, right = st.columns([1.2, 1])
