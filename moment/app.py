@@ -300,7 +300,7 @@ def build_pdf_fpdf(params, results):
         write_line(f"{k}: {v}")
 
     # 关键修复：fpdf2 已经返回 bytes，不要 encode！
-    return pdf.output(dest="S")
+    return bytes(pdf.output(dest="S"))
     
 if st.button("📥 生成 PDF"):
     params = st.session_state.get("input_params")
