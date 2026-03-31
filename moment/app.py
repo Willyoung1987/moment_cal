@@ -243,58 +243,79 @@ with left:
 ##############################################
 st.subheader("📄 导出 PDF 报告")
 
-def build_pdf():
-    buffer = BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
+##############################################
+# PDF 生成（使用 fpdf2，支持中文 + 水印）
+##############################################
+from fpdf import FPDF
+import base64
 
-    # 使用标准字体 + 中文支持（避免本地字体路径问题）
-    pdf.setFont("Helvetica", 16)
-    pdf.drawString(40, height - 60, "磁矩计算报告")
+def build_pdf_fpdf(params, results):
+    pdf = FPDF(format="A4")
+    pdf.add_page()
 
-    y = height - 100
-    pdf.setFont("Helvetica", 10)
+    # 注册中文字体（确保你放置了 fonts/msyh.ttf）
+    pdf.add_font("CN", "", "fonts/msyh.ttf", uni=True)
+    pdf.set_font("CN", size=12)
 
-    def write(text):
+    # -------------------------
+    # 水印
+    # -------------------------
+    pdf.set_text_color(200, 200, 200)
+    pdf.set_font("CN", size=48)
+
+    pdf.rotate(30, x=105, y=150)  # 中心旋转
+    pdf.text(40, 150, "威尔迈（嘉兴）")
+    pdf.rotate(0)
+
+    # 恢复正常颜色
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("CN", size=14)
+    pdf.text(20, 30, "磁矩计算报告")
+    pdf.set_font("CN", size=11)
+
+    y = 50
+    def write_line(text, gap=7):
         nonlocal y
-        pdf.drawString(40, y, text)
-        y -= 16
+        pdf.text(20, y, text)
+        y += gap
 
+    # -------------------------
+    # 输入参数
+    # -------------------------
+    write_line("【输入参数】", 10)
+    write_line(f"磁钢形状：{params['shape']}")
+    write_line(f"尺寸1：{params['dims'][0]} (+{params['tol'][0]}/ {params['tol'][1]})")
+    write_line(f"尺寸2：{params['dims'][1]} (+{params['tol'][2]}/ {params['tol'][3]})")
+
+    if params["shape"] not in ["圆柱（轴向磁化）"]:
+        write_line(f"尺寸3：{params['dims'][2]} (+{params['tol'][4]}/ {params['tol'][5]})")
+
+    write_line(f"镀层厚度：{params['t_um']} μm")
+    write_line(f"倒角半径：{params['R']} mm")
+    write_line(f"牌号：{params['grade']}")
+    write_line(f"Br：{params['Br']} T")
+    write_line(f"Hcb：{params['Hcb']} kA/m")
+
+    write_line("")
+    write_line("【磁矩计算结果（μV·s·cm）】", 10)
+
+    for k, v in results.items():
+        write_line(f"{k}: {v}")
+
+    # 输出 PDF 内容
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    return pdf_bytes
+if st.button("📥 生成 PDF"):
     params = st.session_state.get("input_params")
     results = st.session_state.get("last_results")
 
     if not params or not results:
-        write("无计算结果，请先点击“计算磁矩”按钮。")
+        st.warning("请先计算磁矩")
     else:
-        write("【输入参数】")
-        write(f"磁钢形状：{params['shape']}")
-        s1, s2, s3 = params["dims"]
-        u1, d1, u2, d2, u3, d3 = params["tol"]
-        write(f"尺寸1：{s1} (+{u1}/ {d1}) mm")
-        write(f"尺寸2：{s2} (+{u2}/ {d2}) mm")
-        if "圆柱" not in params["shape"]:
-            write(f"尺寸3：{s3} (+{u3}/ {d3}) mm")
-        write(f"镀层厚度：{params['t_um']} μm")
-        write(f"倒角半径：{params['R']} mm")
-        write(f"牌号：{params['grade']}   Br：{params['Br']} T   Hcb：{params['Hcb']} kA/m")
-        write("")
-        write("【磁矩计算结果（μV·s·cm）】")
-        for k, v in results.items():
-            write(f"{k}：{v}")
-
-    pdf.showPage()
-    pdf.save()
-    buffer.seek(0)
-    return buffer
-
-if st.button("📥 生成 PDF"):
-    if "last_results" not in st.session_state:
-        st.warning("请先点击“计算磁矩”按钮生成结果后再导出 PDF。")
-    else:
-        pdf_file = build_pdf()
+        pdf_bytes = build_pdf_fpdf(params, results)
         st.download_button(
-            label="✅ 点击下载 PDF 报告",
-            data=pdf_file,
-            file_name="磁矩计算结果.pdf",
+            label="⬇ 下载 PDF 报告",
+            data=pdf_bytes,
+            file_name="磁矩报告.pdf",
             mime="application/pdf"
-        )
+        )      
