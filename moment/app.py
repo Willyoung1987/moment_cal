@@ -246,42 +246,40 @@ st.subheader("📄 导出 PDF 报告")
 ##############################################
 # PDF 生成（使用 fpdf2，支持中文 + 水印）
 ##############################################
+##############################################
+# PDF 生成（fpdf2 + 中文 + 水印） —— 修正版
+##############################################
 from fpdf import FPDF
-import base64
 
 def build_pdf_fpdf(params, results):
     pdf = FPDF(format="A4")
     pdf.add_page()
 
-    # 注册中文字体（确保你放置了 fonts/msyh.ttc）
-    pdf.add_font("CN", "", "fonts/msyh.ttc", uni=True)
+    # ⚠ 你需要确保项目中有 fonts/NotoSansSC-Regular.ttf！
+    pdf.add_font("CN", "", "fonts/NotoSansSC-Regular.ttf", uni=True)
     pdf.set_font("CN", size=12)
 
-    # -------------------------
-    # 水印
-    # -------------------------
+    # ============ 水印 ============
     pdf.set_text_color(200, 200, 200)
     pdf.set_font("CN", size=48)
 
-    pdf.rotate(30, x=105, y=150)  # 中心旋转
-    pdf.text(40, 150, "Willmat")
+    pdf.rotate(30, x=105, y=150)
+    pdf.text(40, 150, "威尔迈（嘉兴）")
     pdf.rotate(0)
 
-    # 恢复正常颜色
+    # 恢复正常字体
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("CN", size=14)
     pdf.text(20, 30, "磁矩计算报告")
-    pdf.set_font("CN", size=11)
 
+    pdf.set_font("CN", size=11)
     y = 50
+
     def write_line(text, gap=7):
         nonlocal y
         pdf.text(20, y, text)
         y += gap
 
-    # -------------------------
-    # 输入参数
-    # -------------------------
     write_line("【输入参数】", 10)
     write_line(f"磁钢形状：{params['shape']}")
     write_line(f"尺寸1：{params['dims'][0]} (+{params['tol'][0]}/ {params['tol'][1]})")
@@ -298,13 +296,12 @@ def build_pdf_fpdf(params, results):
 
     write_line("")
     write_line("【磁矩计算结果（μV·s·cm）】", 10)
-
     for k, v in results.items():
         write_line(f"{k}: {v}")
 
-    # 输出 PDF 内容
-    pdf_bytes = pdf.output(dest="S").encode("latin1")
-    return pdf_bytes
+    # 关键修复：fpdf2 已经返回 bytes，不要 encode！
+    return pdf.output(dest="S")
+    
 if st.button("📥 生成 PDF"):
     params = st.session_state.get("input_params")
     results = st.session_state.get("last_results")
