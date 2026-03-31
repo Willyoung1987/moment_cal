@@ -1,0 +1,24 @@
+# 核心框架
+streamlit>=1.38.0
+
+# 数据处理与科学计算
+pandas>=2.0.0
+numpy>=1.24.0
+
+# 绘图
+matplotlib>=3.7.0
+
+# Tushare 数据接口
+tushare>=1.4.0
+
+# Excel 导出（pandas.to_excel 默认使用此引擎）
+openpyxl>=3.1.0
+
+# 指纹生成（MD5）
+# hashlib 是 Python 标准库，无需安装
+
+psycopg2-binary>=2.9.9   # ← 加这一行（推荐！）
+streamlit==1.31.0
+plotly==5.18.0
+reportlab==4.0.9
+numpy==1.26.4
