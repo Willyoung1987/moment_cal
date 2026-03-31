@@ -255,8 +255,8 @@ def build_pdf_fpdf(params, results):
     pdf = FPDF(format="A4")
     pdf.add_page()
 
-    # ⚠ 你需要确保项目中有 fonts/NotoSansSC-Regular.ttf！
-    pdf.add_font("CN", "", "fonts/NotoSansSC-Regular.ttf", uni=True)
+    # ⚠ 你需要确保项目中有 fonts/msyh.ttc！
+    pdf.add_font("CN", "", "fonts/msyh.ttc", uni=True)
     pdf.set_font("CN", size=12)
 
     # ============ 水印 ============
