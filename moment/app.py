@@ -267,7 +267,7 @@ def build_pdf_fpdf(params, results):
     pdf.set_text_color(200, 200, 200)
     pdf.set_font("CN", size=48)
     pdf.rotate(30, x=105, y=150)
-    pdf.text(40, 150, "Willmat Co.")
+    pdf.text(40, 150, "Will Young 19884900209")
     pdf.rotate(0)
 
     # ========= 报告标题 =========
